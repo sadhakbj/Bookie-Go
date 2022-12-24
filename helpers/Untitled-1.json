@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "data": [
+    {
+      "ID": "62d843d7-889c-46c8-9956-12527b2b1a0d",
+      "title": "Book 3",
+      "description": "This is a description for a book 3",
+      "author": "Book author 3",
+      "price": 347,
+      "CreatedAt": "2022-12-17T18:14:47.957+09:00",
+      "UpdatedAt": "2022-12-18T12:14:47.954+09:00"
+    },
+    {
+      "ID": "a0746960-a9da-4f62-be04-98e49ace03ef",
+      "title": "Book 4",
+      "description": "This is a description for a book 4",
+      "author": "Book author 4",
+      "price": 59,
+      "CreatedAt": "2022-12-17T19:14:47.958+09:00",
+      "UpdatedAt": "2022-12-18T12:14:47.954+09:00"
+    }
+  ],
+  "pagination": {
+    "next_cursor": "eyJjcmVhdGVkX2F0IjoiMjAyMi0xMi0xN1QxOToxNDo0Ny45NTgrMDk6MDAiLCJpZCI6ImEwNzQ2OTYwLWE5ZGEtNGY2Mi1iZTA0LTk4ZTQ5YWNlMDNlZiIsInBvaW50c19uZXh0Ijp0cnVlfQ==",
+    "prev_cursor": "eyJjcmVhdGVkX2F0IjoiMjAyMi0xMi0xN1QxODoxNDo0Ny45NTcrMDk6MDAiLCJpZCI6IjYyZDg0M2Q3LTg4OWMtNDZjOC05OTU2LTEyNTI3YjJiMWEwZCIsInBvaW50c19uZXh0IjpmYWxzZX0="
+  }
+}
