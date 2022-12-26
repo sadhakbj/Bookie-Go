@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,22 +27,15 @@ func GetPaginatedBooks(c *fiber.Ctx) error {
 	pointsNext := false
 
 	query := database.DB
-	if cursor != "" {
-		decodedCursor, err := helpers.DecodeCursor(cursor)
-		if err != nil {
-			fmt.Println(err)
-			return c.SendStatus(500)
-		}
-		pointsNext = decodedCursor["points_next"] == true
-
-		operator, order := getPaginationOperator(pointsNext, sortOrder)
-		whereStr := fmt.Sprintf("(created_at %s ? OR (created_at = ? AND id %s ?))", operator, operator)
-		query = query.Where(whereStr, decodedCursor["created_at"], decodedCursor["created_at"], decodedCursor["id"])
-		if order != "" {
-			sortOrder = order
-		}
+	query, pointsNext, err = database.GetPaginationQuery(query, pointsNext, cursor, sortOrder)
+	if err != nil {
+		return c.SendStatus(500)
 	}
-	query.Order("created_at " + sortOrder).Limit(int(limit) + 1).Find(&books)
+
+	err = query.Limit(int(limit) + 1).Find(&books).Error
+	if err != nil {
+		return c.SendStatus(500)
+	}
 	hasPagination := len(books) > int(limit)
 
 	if hasPagination {
@@ -54,7 +46,7 @@ func GetPaginatedBooks(c *fiber.Ctx) error {
 		books = helpers.Reverse(books)
 	}
 
-	pageInfo := calculatePagination(isFirstPage, hasPagination, int(limit), books, pointsNext)
+	pageInfo := database.CalculatePagination(isFirstPage, hasPagination, int(limit), books, pointsNext)
 
 	response := common.ResponseDTO{
 		Success:    true,
@@ -63,50 +55,4 @@ func GetPaginatedBooks(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusOK).JSON(response)
-}
-
-func calculatePagination(isFirstPage bool, hasPagination bool, limit int, books []models.Book, pointsNext bool) helpers.PaginationInfo {
-	pagination := helpers.PaginationInfo{}
-	nextCur := helpers.Cursor{}
-	prevCur := helpers.Cursor{}
-	if isFirstPage {
-		if hasPagination {
-			nextCur := helpers.CreateCursor(books[limit-1].ID, books[limit-1].CreatedAt, true)
-			pagination = helpers.GeneratePager(nextCur, nil)
-		}
-	} else {
-		if pointsNext {
-			// if pointing next, it always has prev but it might not have next
-			if hasPagination {
-				nextCur = helpers.CreateCursor(books[limit-1].ID, books[limit-1].CreatedAt, true)
-			}
-			prevCur = helpers.CreateCursor(books[0].ID, books[0].CreatedAt, false)
-			pagination = helpers.GeneratePager(nextCur, prevCur)
-		} else {
-			// this is case of prev, there will always be nest, but prev needs to be calculated
-			nextCur = helpers.CreateCursor(books[limit-1].ID, books[limit-1].CreatedAt, true)
-			if hasPagination {
-				prevCur = helpers.CreateCursor(books[0].ID, books[0].CreatedAt, false)
-			}
-			pagination = helpers.GeneratePager(nextCur, prevCur)
-		}
-	}
-	return pagination
-}
-
-func getPaginationOperator(pointsNext bool, sortOrder string) (string, string) {
-	if pointsNext && sortOrder == "asc" {
-		return ">", ""
-	}
-	if pointsNext && sortOrder == "desc" {
-		return "<", ""
-	}
-	if !pointsNext && sortOrder == "asc" {
-		return "<", "desc"
-	}
-	if !pointsNext && sortOrder == "desc" {
-		return ">", "asc"
-	}
-
-	return "", ""
 }
