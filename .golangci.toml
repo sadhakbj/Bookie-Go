@@ -7,16 +7,13 @@ enable = [
     # for the full, current list of available linters.
     
     # Default linters
-    "deadcode", # Finds unused code
     "errcheck", # Detect unchecked errors
     "gosimple", # Suggest code simplifications
     "govet", # Reports suspicious constructs
     "ineffassign", # Detects unused variable assignments
     "staticcheck", # go vet on steroids
-    "structcheck", # Find unused struct fields
     "typecheck", # Standard Go type checks
     "unused", # Detect unused constants, variables, functions and types
-    "varcheck", # Find unused global variables and constants
 
     # Suggested additional linters
     "gocyclo", # or "cyclop", # Detect cyclomatic complexity

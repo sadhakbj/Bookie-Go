@@ -4,8 +4,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sadhakbj/bookie-go/helpers"
+	"github.com/sadhakbj/bookie-go/src/internal/helpers"
 	"gorm.io/gorm"
+)
+
+const (
+	// ASC ascending order
+	ASC = "asc"
+	// DESC descending order
+	DESC = "desc"
 )
 
 type PaginatedItem interface {
@@ -34,17 +41,17 @@ func GetPaginationQuery(query *gorm.DB, pointsNext bool, cursor string, sortOrde
 }
 
 func getPaginationOperator(pointsNext bool, sortOrder string) (string, string) {
-	if pointsNext && sortOrder == "asc" {
+	if pointsNext && sortOrder == ASC {
 		return ">", ""
 	}
-	if pointsNext && sortOrder == "desc" {
+	if pointsNext && sortOrder == DESC {
 		return "<", ""
 	}
-	if !pointsNext && sortOrder == "asc" {
-		return "<", "desc"
+	if !pointsNext && sortOrder == ASC {
+		return "<", DESC
 	}
-	if !pointsNext && sortOrder == "desc" {
-		return ">", "asc"
+	if !pointsNext && sortOrder == DESC {
+		return ">", ASC
 	}
 
 	return "", ""

@@ -3,7 +3,7 @@ package database
 import (
 	"log"
 
-	"github.com/sadhakbj/bookie-go/models"
+	"github.com/sadhakbj/bookie-go/src/internal/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
