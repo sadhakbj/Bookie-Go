@@ -2,7 +2,7 @@
 
 .PHONY: lint
 lint:
-	golangci-lint run ${args} ./src/**/**.go ...
+	golangci-lint run ${args} ./ ...
 
 .PHONY: lint-fix
 lint-fix:
