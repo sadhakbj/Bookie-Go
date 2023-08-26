@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,12 +13,29 @@ import (
 )
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+			code := fiber.StatusInternalServerError
+
+			var e *fiber.Error
+			if errors.As(err, &e) {
+				code = e.Code
+			}
+
+			err = ctx.Status(code).JSON(fiber.Map{
+				"message": "Internal server error",
+			})
+			if err != nil {
+				// In case the SendFile fails
+				return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+			}
+
+			return nil
+		},
+	})
+
 	database.InitDB()
 
-	errMiddleware := middlewares.ErrorHandler
-
-	app.Use(errMiddleware)
 	app.Get("/books/seed", books.SeedBooks)
 	app.Get("/books", books.GetPaginatedBooks)
 	app.Post("/auth/login", auth.Authenticate)
