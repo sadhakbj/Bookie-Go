@@ -4,10 +4,10 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/sadhakbj/bookie-go/common"
-	"github.com/sadhakbj/bookie-go/database"
-	"github.com/sadhakbj/bookie-go/helpers"
-	"github.com/sadhakbj/bookie-go/models"
+	"github.com/sadhakbj/bookie-go/src/internal/common"
+	"github.com/sadhakbj/bookie-go/src/internal/database"
+	"github.com/sadhakbj/bookie-go/src/internal/helpers"
+	"github.com/sadhakbj/bookie-go/src/internal/models"
 )
 
 func GetPaginatedBooks(c *fiber.Ctx) error {

@@ -3,7 +3,7 @@ package database
 import (
 	"log"
 
-	"github.com/sadhakbj/bookie-go/models"
+	"github.com/sadhakbj/bookie-go/src/internal/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -24,6 +24,8 @@ func InitDB() {
 	log.Println("Connected Successfully to Database")
 	db.Logger = logger.Default.LogMode(logger.Info)
 	log.Println("Running Migrations")
-	db.AutoMigrate(&models.Book{})
+	if err := db.AutoMigrate(&models.Book{}); err != nil {
+		log.Fatal("Unable to perform the migration")
+	}
 	DB = db
 }

@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// Book represents book model
 type Book struct {
 	ID          string `json:"id" gorm:"primaryKey"`
 	Title       string `json:"title" gorm:"type:varchar(191);not null"`
@@ -17,12 +18,13 @@ type Book struct {
 	UpdatedAt   time.Time
 }
 
-func (book *Book) BeforeCreate(tx *gorm.DB) (err error) {
+// BeforeCreate sets id to uuid
+func (book *Book) BeforeCreate(_ *gorm.DB) (err error) {
 	book.ID = uuid.NewString()
 	return
 }
 
-// ID is a method of the Book struct that returns the ID field of the struct.
+// GetID ID is a method of the Book struct that returns the ID field of the struct.
 // It is defined to implement the ID method of the Item interface.
 func (book Book) GetID() string {
 	return book.ID

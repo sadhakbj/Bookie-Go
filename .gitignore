@@ -2,3 +2,4 @@ vendor/
 docker/mysql
 main
 .env
+build/
