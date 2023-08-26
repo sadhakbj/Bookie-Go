@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: bookie
+      MYSQL_USER: bookie
+      MYSQL_PASSWORD: bookie
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+    ports:
+      - "3308:3306"
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ".:/app"
+    depends_on:
+      - mysql
+    links:
+      - mysql
