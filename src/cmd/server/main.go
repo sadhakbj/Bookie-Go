@@ -1,40 +1,56 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"log"
-	"math/rand"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/sadhakbj/bookie-go/src/internal/controllers"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/sadhakbj/bookie-go/src/internal/controllers/auth"
+	"github.com/sadhakbj/bookie-go/src/internal/controllers/books"
 	"github.com/sadhakbj/bookie-go/src/internal/database"
-	"github.com/sadhakbj/bookie-go/src/internal/models"
+	"github.com/sadhakbj/bookie-go/src/internal/middlewares"
 )
 
 func main() {
-	app := fiber.New()
-	database.InitDB()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+			code := fiber.StatusInternalServerError
 
-	app.Get("/books/seed", func(c *fiber.Ctx) error {
-		var book models.Book
-		if err := database.DB.Exec("delete from books where 1").Error; err != nil {
-			return c.SendStatus(500)
-		}
-		for i := 1; i <= 20; i++ {
-			book.Title = fmt.Sprintf("Book %d", i)
-			book.Description = fmt.Sprintf("This is a description for a book %d", i)
-			book.Price = uint(rand.Intn(500))
-			book.Author = fmt.Sprintf("Book author %d", i)
-			book.CreatedAt = time.Now().Add(-time.Duration(21-i) * time.Hour)
+			var e *fiber.Error
+			if errors.As(err, &e) {
+				code = e.Code
+			}
 
-			database.DB.Create(&book)
-		}
+			err = ctx.Status(code).JSON(fiber.Map{
+				"message": "Internal server error",
+			})
+			if err != nil {
+				// In case the SendFile fails
+				return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
+			}
 
-		return c.SendStatus(fiber.StatusOK)
+			return nil
+		},
 	})
 
-	app.Get("/books", controllers.GetPaginatedBooks)
+	database.InitDB()
+
+	app.Get("/books/seed", books.SeedBooks)
+	app.Get("/books", books.GetPaginatedBooks)
+	app.Post("/auth/login", auth.Authenticate)
+
+	jwtMiddleware := middlewares.NewAuthMiddleware("secret")
+
+	// Restricted Routes
+	app.Get("/restricted", jwtMiddleware, restricted)
 
 	log.Fatal(app.Listen(":3000"))
+}
+
+func restricted(c *fiber.Ctx) error {
+	user := c.Locals("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	name := claims["name"].(string)
+	return c.JSON(fiber.Map{"name": name})
 }

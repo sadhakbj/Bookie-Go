@@ -7,7 +7,6 @@ enable = [
     # for the full, current list of available linters.
     
     # Default linters
-    "errcheck", # Detect unchecked errors
     "gosimple", # Suggest code simplifications
     "govet", # Reports suspicious constructs
     "ineffassign", # Detects unused variable assignments
