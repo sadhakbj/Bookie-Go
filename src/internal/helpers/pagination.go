@@ -6,13 +6,16 @@ import (
 	"time"
 )
 
+// PaginationInfo stores the info about next and prev cursors.
 type PaginationInfo struct {
 	NextCursor string `json:"next_cursor"`
 	PrevCursor string `json:"prev_cursor"`
 }
 
+// Cursor represents a generic map
 type Cursor map[string]interface{}
 
+// CreateCursor creates new cursor
 func CreateCursor(id string, createdAt time.Time, pointsNext bool) Cursor {
 	return Cursor{
 		"id":          id,
@@ -21,6 +24,7 @@ func CreateCursor(id string, createdAt time.Time, pointsNext bool) Cursor {
 	}
 }
 
+// GeneratePager generates the pager
 func GeneratePager(next Cursor, prev Cursor) PaginationInfo {
 	return PaginationInfo{
 		NextCursor: encodeCursor(next),
@@ -40,6 +44,7 @@ func encodeCursor(cursor Cursor) string {
 	return encodedCursor
 }
 
+// DecodeCursor decodes the cursor
 func DecodeCursor(cursor string) (Cursor, error) {
 	decodedCursor, err := base64.StdEncoding.DecodeString(cursor)
 	if err != nil {
