@@ -5,15 +5,16 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	appLogger "github.com/gofiber/fiber/v2/log"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/sadhakbj/bookie-go/src/internal/controllers/auth"
-	"github.com/sadhakbj/bookie-go/src/internal/controllers/books"
 	"github.com/sadhakbj/bookie-go/src/internal/database"
 	"github.com/sadhakbj/bookie-go/src/internal/middlewares"
+	"github.com/sadhakbj/bookie-go/src/internal/routes"
 )
 
-func main() {
-	app := fiber.New(fiber.Config{
+func getAppConfig() *fiber.Config {
+	return &fiber.Config{
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
 			code := fiber.StatusInternalServerError
 
@@ -22,23 +23,29 @@ func main() {
 				code = e.Code
 			}
 
+			appLogger.Error(err)
 			err = ctx.Status(code).JSON(fiber.Map{
 				"message": "Internal server error",
 			})
 			if err != nil {
-				// In case the SendFile fails
 				return ctx.Status(fiber.StatusInternalServerError).SendString("Internal Server Error")
 			}
 
 			return nil
 		},
-	})
+	}
+}
+
+func main() {
+	config := getAppConfig()
+	app := fiber.New(*config)
+
+	app.Use(recover.New())
 
 	database.InitDB()
 
-	app.Get("/books/seed", books.SeedBooks)
-	app.Get("/books", books.GetPaginatedBooks)
-	app.Post("/auth/login", auth.Authenticate)
+	routes.SetupAuthRoutes(app)
+	routes.SetupBooksRoutes(app)
 
 	jwtMiddleware := middlewares.NewAuthMiddleware("secret")
 
@@ -49,6 +56,7 @@ func main() {
 }
 
 func restricted(c *fiber.Ctx) error {
+	appLogger.Info("This is a test")
 	user := c.Locals("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
 	name := claims["name"].(string)
