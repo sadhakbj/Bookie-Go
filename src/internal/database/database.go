@@ -24,7 +24,7 @@ func InitDB() {
 	log.Println("Connected Successfully to Database")
 	db.Logger = logger.Default.LogMode(logger.Info)
 	log.Println("Running Migrations")
-	if err := db.AutoMigrate(&models.Book{}); err != nil {
+	if err := db.AutoMigrate(&models.Book{}, &models.User{}); err != nil {
 		log.Fatal("Unable to perform the migration")
 	}
 	DB = db
