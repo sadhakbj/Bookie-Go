@@ -6,10 +6,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	appLogger "github.com/gofiber/fiber/v2/log"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/sadhakbj/bookie-go/src/internal/database"
-	"github.com/sadhakbj/bookie-go/src/internal/middlewares"
 	"github.com/sadhakbj/bookie-go/src/internal/routes"
 )
 
@@ -47,18 +46,7 @@ func main() {
 	routes.SetupAuthRoutes(app)
 	routes.SetupBooksRoutes(app)
 
-	jwtMiddleware := middlewares.NewAuthMiddleware("secret")
-
-	// Restricted Routes
-	app.Get("/restricted", jwtMiddleware, restricted)
+	app.Get("/metrics", monitor.New())
 
 	log.Fatal(app.Listen(":3000"))
-}
-
-func restricted(c *fiber.Ctx) error {
-	appLogger.Info("This is a test")
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	name := claims["name"].(string)
-	return c.JSON(fiber.Map{"name": name})
 }
